@@ -1,34 +1,38 @@
 const db = require("../models/db");
-db.connect('./data');
-db.loadCollections['cervezas'];
-db.loadCollections['bares']
-
-const arrayCervezas=db.cervezas.find();
+db.connect("./data");
+db.loadCollections["cervezas"];
 
 function getBeers(req, res) {
-  res.json(arrayCervezas);
+  res.json(db.cervezas.find());
 }
 
 function getBeer(req, res) {
-  let idCer = req.params.id;
-  for (let i = 0; i < arrayCervezas.length; i++) {
-    if ((arrayCervezas[i].id ===idCer)) {
-      res.json(arrayCervezas[i]);
-    }
+  const beerId = req.params.id;
+  const beer = db.cervezas.find({ id: beerId });
+  if (beer.length) {
+    res.json(beer);
+  } else {
+    res.json({ message: "La cerveza no existe" });
   }
 }
 
 function addBeer(req, res) {
-  arrayCervezas.push(req.body);
-  res.json({ mensaje: "post hecho" });
+  const beer = req.body;
+  const update = db.cervezas.save(beer);
+  res.json(update);
 }
 
 function deleteBeer(req, res) {
-  let id = req.params.id;
-  arrayCervezas.splice(id - 1, 1);
-  res.json({ mensaje: "delete hecho" });
+  const beerId = req.params.id;
+  db.cervezas.remove({ id: beerId });
+  res.json(db.cervezas.find());
 }
 
-function editBeer(req, res) {}
+function editBeer(req, res) {
+  const beerId = req.params.id;
+  const beer = req.body;
+  db.cervezas.update({ id: beerId }, beer);
+  res.json(db.cervezas.find());
+}
 
 module.exports = { getBeers, getBeer, addBeer, deleteBeer, editBeer };
